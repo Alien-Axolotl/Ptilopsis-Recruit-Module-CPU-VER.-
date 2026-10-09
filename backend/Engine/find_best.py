@@ -88,11 +88,17 @@ def find_best_combination(tags):
         names.update(tag if isinstance(tag, list) else [tag])
     names = sorted(name.lower() for name in names)
 
-    for stars, tier in TIERS:
-        for size in range(1, MAX_COMBINATION_SIZE + 1):
-            for combination in combinations(names, size):
-                if frozenset(combination) in tier:
-                    return stars, list(combination)
+    best_stars, best_combination = None, None
 
-    print("No matching combination found for tags:", names)
-    return None, None
+    for size in range(MAX_COMBINATION_SIZE, 0 , -1):
+        for combination in combinations(names, size):
+            key = frozenset(combination)
+            for stars, tier in TIERS:
+                if key in tier:
+                    if best_stars is None or stars > best_stars:
+                        best_stars, best_combination = stars, list(combination)
+                    break
+
+    if best_stars is None:
+        print("No matching combination found for tags:", names)
+    return best_stars, best_combination
