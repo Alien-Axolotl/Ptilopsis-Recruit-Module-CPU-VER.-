@@ -35,7 +35,8 @@ If you are a rights holder and have concerns about any content in this repositor
 
 
 
-
+# GPU VER [MOSTLY ABANDONED]
+- https://github.com/Alien-Axolotl/Work-In-Progress , huge download and requires basic technical skills to run.
 
 
 
