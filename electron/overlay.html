@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'">
+  <style>
+    html, body {
+      margin: 0;
+      background: transparent;
+      overflow: hidden;
+      user-select: none;
+    }
+
+    body {
+      padding: 10px 16px;
+      font-family: 'Segoe UI', sans-serif;
+      font-weight: 800;
+      text-align: right;
+      color: #ffffff;
+      text-shadow: 0 0 4px #000000, 0 0 4px #000000, 0 1px 2px #000000;
+    }
+
+    #stars {
+      font-size: 26px;
+      line-height: 32px;
+    }
+
+    #tags {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      font-size: 18px;
+      line-height: 24px;
+    }
+
+    body[data-stars="6"] #stars { color: #ff9a2e; }
+    body[data-stars="5"] #stars { color: #ffe14d; }
+    body[data-stars="4"] #stars { color: #c9a3ff; }
+  </style>
+</head>
+<body>
+  <div id="stars"></div>
+  <ul id="tags"></ul>
+
+  <script>
+    const stars = document.getElementById('stars');
+    const tags = document.getElementById('tags');
+
+    window.overlay.onResult((result) => {
+      const combination = result?.best_combination ?? ['No Good Recruitment'];
+
+      document.body.dataset.stars = result?.stars ?? '';
+      stars.textContent = result?.stars ? '★'.repeat(result.stars) : '';
+      tags.replaceChildren(...combination.map((tag) => {
+        const item = document.createElement('li');
+        item.textContent = tag;
+        return item;
+      }));
+    });
+  </script>
+</body>
+</html>

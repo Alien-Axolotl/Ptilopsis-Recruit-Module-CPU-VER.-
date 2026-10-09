@@ -1,0 +1,7 @@
+fastapi==0.141.1
+uvicorn[standard]==0.54.0
+rapidocr==3.10.0
+onnxruntime==1.31.0
+opencv-python-headless==5.0.0.93
+numpy==2.5.3
+mss==10.2.0

@@ -1,0 +1,9 @@
+@import "tailwindcss";
+
+
+@layer base {
+  html, body {
+    @apply bg-gray-400 m-0 p-0 min-h-screen w-full;
+    overflow : hidden;
+  }
+}

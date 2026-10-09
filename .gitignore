@@ -1,0 +1,13 @@
+#Local
+
+venv/
+ENV/
+.venv/
+__pycache__/
+node_modules/
+build/
+release/
+dist/
+
+#API Test
+requests.http

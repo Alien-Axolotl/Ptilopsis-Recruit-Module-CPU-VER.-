@@ -1,0 +1,47 @@
+{
+  "name": "electron",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "start": "node start.js",
+    "build:backend": "cd ..\\backend && ..\\venv\\Scripts\\pyinstaller.exe run_backend.py --name backend --noconfirm --add-data \"%cd%\\..\\backend\\Data\\tag_list.json;Data\" --add-data \"%cd%\\..\\backend\\Engine\\JobTagsTemplate.png;Engine\" --collect-all rapidocr --distpath ..\\build\\backend --workpath ..\\build\\pyinstaller --specpath ..\\build",
+    "build:frontend": "npm run build --prefix ../frontend -- --base=./",
+    "build": "npm run build:backend && npm run build:frontend && electron-builder"
+  },
+  "build": {
+    "appId": "com.celestria.ptilopsisrecruitplanner",
+    "productName": "PtilopsisRecruitPlanner",
+    "files": [
+      "main.js",
+      "preload.js",
+      "overlay.html"
+    ],
+    "extraResources": [
+      {
+        "from": "../frontend/dist",
+        "to": "frontend"
+      },
+      {
+        "from": "../build/backend/backend",
+        "to": "backend"
+      }
+    ],
+    "win": {
+      "target": "portable"
+    },
+    "directories": {
+      "output": "../release"
+    }
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "concurrently": "^10.0.5",
+    "electron": "^44.0.0",
+    "electron-builder": "^26.15.3",
+    "wait-on": "^9.1.0"
+  }
+}
