@@ -4,6 +4,11 @@ on:
   push:
     tags: ["v*"]
   workflow_dispatch:
+    inputs:
+      version:
+        description: "Version"
+        required: false
+        default: ""
 
 permissions:
   contents: write
@@ -24,7 +29,6 @@ jobs:
         with:
           node-version: "22"
 
-      # The build:backend script expects a venv at the repo root (..\venv)
       - name: Create Python venv and install backend deps
         shell: pwsh
         run: |
@@ -49,20 +53,19 @@ jobs:
         working-directory: electron
         run: npm run build:frontend
 
-      - name: Package app (electron-builder, portable exe)
+      - name: Package app (electron-builder, unpacked folder)
         working-directory: electron
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: "false"
-        run: npx electron-builder --win portable --publish never
+        run: npx electron-builder --win dir --publish never
 
       - name: Collect release files and checksums
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Force out | Out-Null
-          $exe = Get-ChildItem release\*.exe | Select-Object -First 1
-          Copy-Item $exe.FullName out\PRM.exe
-          Compress-Archive -Path out\PRM.exe -DestinationPath out\PRM.zip
-          Get-FileHash out\PRM.exe, out\PRM.zip -Algorithm SHA256 |
+          Rename-Item release\win-unpacked PRM
+          Compress-Archive -Path release\PRM -DestinationPath out\PRM.zip
+          Get-FileHash out\PRM.zip, release\PRM\PtilopsisRecruitPlanner.exe -Algorithm SHA256 |
             ForEach-Object { "$($_.Hash.ToLower())  $(Split-Path $_.Path -Leaf)" } |
             Set-Content -Encoding ascii out\SHA256SUMS.txt
           Get-Content out\SHA256SUMS.txt
@@ -71,8 +74,8 @@ jobs:
         uses: actions/attest-build-provenance@v2
         with:
           subject-path: |
-            out/PRM.exe
             out/PRM.zip
+            release/PRM/PtilopsisRecruitPlanner.exe
 
       - name: Upload as workflow artifact
         uses: actions/upload-artifact@v4
@@ -81,10 +84,11 @@ jobs:
           path: out/
 
       - name: Publish GitHub release
-        if: startsWith(github.ref, 'refs/tags/')
+        if: startsWith(github.ref, 'refs/tags/') || inputs.version != ''
         shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
+          TAG: ${{ inputs.version || github.ref_name }}
         run: |
           $notes = @"
           Built by GitHub Actions from commit ${{ github.sha }}.
@@ -95,5 +99,5 @@ jobs:
           SHA-256:
           $(Get-Content out\SHA256SUMS.txt -Raw)
           "@
-          gh release create "${{ github.ref_name }}" out\PRM.exe out\PRM.zip out\SHA256SUMS.txt `
-            --title "${{ github.ref_name }}" --notes $notes
+          gh release create "$env:TAG" out\PRM.zip out\SHA256SUMS.txt `
+            --target "${{ github.sha }}" --title "$env:TAG" --notes $notes
